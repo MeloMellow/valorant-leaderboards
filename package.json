@@ -7,6 +7,7 @@
     "dev": "nodemon --watch 'src/' --exec 'ts-node src/index.ts' -e ts",
     "clean": "rimraf lib",
     "test": "jest --colors --noStackTrace --passWithNoTests --runInBand",
+    "test:unit": "npm test -- --watch",
     "build": "npm run clean && tsc",
     "prepare": "husky install"
   },
