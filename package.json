@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon --watch 'src/' --exec 'ts-node src/index.ts' -e ts",
     "clean": "rimraf lib",
-    "test": "jest --colors --noStackTrace --passWithNoTests --runInBand",
+    "test": "jest --colors --noStackTrace --passWithNoTests",
     "test:unit": "npm test -- --watch",
     "test:ci": "npm test -- --coverage --silent",
     "build": "npm run clean && tsc",

@@ -4,7 +4,7 @@ enum Region {
   "ESPORTS" = "esports",
   "EU" = "eu",
   "KR" = "kr",
-  "validRegion" = "valid-region"
+  "default" = "ap"
 }
 
 enum Locales {
@@ -27,10 +27,15 @@ enum Locales {
   "zh_TW"
 }
 
+type Leaderboard = {
+  actId: String
+  players: []
+}
+
 type RepositoryResponse = {
-  header: {}
+  header: any
   status: any
-  body: {}
+  body: any
 }
 interface ILoadLeaderboardByRegionAndActRepository {
   load(region: Region, actId: String): Promise<RepositoryResponse>
@@ -46,12 +51,13 @@ class LoadLeaderboard implements ILoadLeaderboard{
   constructor(private readonly loadLeaderboardByRegionAndActRepository: ILoadLeaderboardByRegionAndActRepository){
     
   }
-  async loadByRegionAndAct(region: Region, actId: String): Promise<RepositoryResponse>{
+  async loadByRegionAndAct(region: Region, actId: String): Promise<Leaderboard>{
     if(!actId){
       throw new Error('actId is missing')
     }
     const response = await this.loadLeaderboardByRegionAndActRepository.load(region, actId)
-    return response
+    const leaderboard: Leaderboard = response.body
+    return leaderboard
   }
 }
 
@@ -61,8 +67,14 @@ class LoadLeaderboardByRegionAndActRepositorySpy implements ILoadLeaderboardByRe
   async load(region: Region, actId: String): Promise<RepositoryResponse>{
     this.region = region
     this.actId = actId
-    return { header: '', status: 200, body: { players: 'any'}
+    return { header: {}, status: {} , body: {actId, players: []}
     }
+  }
+}
+
+class LoadLeaderboardByRegionAndActRepositoryWithErrorSpy implements ILoadLeaderboardByRegionAndActRepository{
+  async load(region: Region, actId: String): Promise<RepositoryResponse>{
+    throw new Error('Something went wrong')
   }
 }
 
@@ -80,14 +92,26 @@ describe('LoadLeaderboard', () => {
 
   it("Should call loadLeaderboardByRegionAndActRepository with correct params", async ()=>{
     const { sut, loadLeaderboardByRegionAndActRepositorySpy } = makeSut()
-    await sut.loadByRegionAndAct(Region.validRegion, 'valid-act')
-    expect(loadLeaderboardByRegionAndActRepositorySpy.region).toBe(Region.validRegion)
+    await sut.loadByRegionAndAct(Region.default, 'valid-act')
+    expect(loadLeaderboardByRegionAndActRepositorySpy.region).toBe(Region.default)
     expect(loadLeaderboardByRegionAndActRepositorySpy.actId).toBe('valid-act')
   })
 
   it("Should throws when called without actId", async ()=>{
     const { sut, loadLeaderboardByRegionAndActRepositorySpy } = makeSut()
-    const response = sut.loadByRegionAndAct(Region.validRegion, '')
+    const response = sut.loadByRegionAndAct(Region.default, '')
     await expect(response).rejects.toThrow()
+  })
+
+  it("Should throws if loadLeaderboardByRegionAndActRepository throws", async ()=>{
+    const sut = new LoadLeaderboard(new LoadLeaderboardByRegionAndActRepositoryWithErrorSpy())
+    const response = sut.loadByRegionAndAct(Region.default, 'valid-act')
+    await expect(response).rejects.toThrow()
+  })
+
+  it("Should return an data on success", async()=>{
+    const { sut, loadLeaderboardByRegionAndActRepositorySpy } = makeSut()
+    const leaderBoard = await sut.loadByRegionAndAct(Region.default, 'valid-act')
+    expect(leaderBoard).toBeTruthy()
   })
  })
