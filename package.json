@@ -8,6 +8,7 @@
     "clean": "rimraf lib",
     "test": "jest --colors --noStackTrace --passWithNoTests --runInBand",
     "test:unit": "npm test -- --watch",
+    "test:ci": "npm test -- --coverage --silent",
     "build": "npm run clean && tsc",
     "prepare": "husky install"
   },
