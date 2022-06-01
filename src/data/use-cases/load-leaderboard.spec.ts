@@ -1,65 +1,10 @@
-enum Region {
-  "AP" = "ap",
-  "BR" = "br",
-  "ESPORTS" = "esports",
-  "EU" = "eu",
-  "KR" = "kr",
-  "default" = "ap"
-}
+import Region from '../../constants/region'
+import LoadLeaderboard from './load-leaderboard'
+import { ILoadLeaderboardByRegionAndActRepository, RepositoryResponse } from '../../infra/repositories/load-leaderboard-by-region-and-act-repository'
 
-enum Locales {
-  "ar_AE",
-  "de_DE",
-  "en_US",
-  "es_ES",
-  "es_MX",
-  "fr_FR",
-  "id_ID",
-  "it_IT",
-  "ja_JP",
-  "ko_KR",
-  "pl_PL",
-  "pt_BR",
-  "ru_RU",
-  "th_TH",
-  "tr_TR",
-  "vi_VN",
-  "zh_TW"
-}
-
-type Leaderboard = {
-  actId: String
-  players: []
-}
-
-type RepositoryResponse = {
-  header: any
-  status: any
-  body: any
-}
-interface ILoadLeaderboardByRegionAndActRepository {
-  load(region: Region, actId: String): Promise<RepositoryResponse>
-}
 // 1: Obter o client
 // 2: Obter todos os Atos
 // 3: Obter a leaderboard baseada nos atos
-interface ILoadLeaderboard{
-  loadByRegionAndAct(region: Region, actId: String): Promise<{}>
-}
-
-class LoadLeaderboard implements ILoadLeaderboard{
-  constructor(private readonly loadLeaderboardByRegionAndActRepository: ILoadLeaderboardByRegionAndActRepository){
-    
-  }
-  async loadByRegionAndAct(region: Region, actId: String): Promise<Leaderboard>{
-    if(!actId){
-      throw new Error('actId is missing')
-    }
-    const response = await this.loadLeaderboardByRegionAndActRepository.load(region, actId)
-    const leaderboard: Leaderboard = response.body
-    return leaderboard
-  }
-}
 
 class LoadLeaderboardByRegionAndActRepositorySpy implements ILoadLeaderboardByRegionAndActRepository{
   region: Region | null = null
