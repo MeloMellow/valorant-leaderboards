@@ -1,6 +1,7 @@
 import Region from '../../constants/region'
 import LoadLeaderboard from './load-leaderboard'
-import { ILoadLeaderboardByRegionAndActRepository, RepositoryResponse } from '../../infra/repositories/load-leaderboard-by-region-and-act-repository'
+import ILoadLeaderboardByRegionAndActRepository from '../../infra/repositories/load-leaderboard-by-region-and-act-repository'
+import RepositoryResponse from '../../infra/repository-response'
 
 // 1: Obter o client
 // 2: Obter todos os Atos
@@ -67,7 +68,7 @@ describe('LoadLeaderboard', () => {
     expect(leaderBoard).toHaveProperty('players')
   })
 
-  it("Should throws if an invalid LeaderBoard is provided on success", async ()=>{
+  it("Should throws if an invalid response is provided on success", async ()=>{
     const sut = new LoadLeaderboard(new LoadLeaderboardByRegionAndActRepositoryWithInvalidResponseSpy())
     const response = sut.loadByRegionAndAct(Region.default, 'valid-act')
     await expect(response).rejects.toThrow()
