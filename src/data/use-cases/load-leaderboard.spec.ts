@@ -23,6 +23,12 @@ class LoadLeaderboardByRegionAndActRepositoryWithErrorSpy implements ILoadLeader
   }
 }
 
+class LoadLeaderboardByRegionAndActRepositoryWithInvalidResponseSpy implements ILoadLeaderboardByRegionAndActRepository{
+  async load(region: Region, actId: String): Promise<RepositoryResponse>{
+    return { header: {}, status: {}, body: {}}
+  }
+}
+
 const makeSut = (): { sut: LoadLeaderboard, loadLeaderboardByRegionAndActRepositorySpy: LoadLeaderboardByRegionAndActRepositorySpy}=>{
   const loadLeaderboardByRegionAndActRepositorySpy = new LoadLeaderboardByRegionAndActRepositorySpy()
   const sut = new LoadLeaderboard(loadLeaderboardByRegionAndActRepositorySpy)
@@ -43,7 +49,7 @@ describe('LoadLeaderboard', () => {
   })
 
   it("Should throws when called without actId", async ()=>{
-    const { sut, loadLeaderboardByRegionAndActRepositorySpy } = makeSut()
+    const { sut } = makeSut()
     const response = sut.loadByRegionAndAct(Region.default, '')
     await expect(response).rejects.toThrow()
   })
@@ -54,9 +60,17 @@ describe('LoadLeaderboard', () => {
     await expect(response).rejects.toThrow()
   })
 
-  it("Should return an data on success", async()=>{
-    const { sut, loadLeaderboardByRegionAndActRepositorySpy } = makeSut()
+  it("Should return a valid LeaderBoard on success", async()=>{
+    const { sut } = makeSut()
     const leaderBoard = await sut.loadByRegionAndAct(Region.default, 'valid-act')
-    expect(leaderBoard).toBeTruthy()
+    expect(leaderBoard.actId).toBe('valid-act')
+    expect(leaderBoard).toHaveProperty('players')
   })
+
+  it("Should throws if an invalid LeaderBoard is provided on success", async ()=>{
+    const sut = new LoadLeaderboard(new LoadLeaderboardByRegionAndActRepositoryWithInvalidResponseSpy())
+    const response = sut.loadByRegionAndAct(Region.default, 'valid-act')
+    await expect(response).rejects.toThrow()
+  })
+
  })

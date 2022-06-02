@@ -1,6 +1,5 @@
 import Region from "../../constants/region"
-import Leaderboard from "../../domain/models/leaderboard"
-import { ILoadLeaderboard } from "../../domain/use-cases/load-leaderboard"
+import { ILoadLeaderboard, Leaderboard } from "../../domain/use-cases/load-leaderboard"
 import { ILoadLeaderboardByRegionAndActRepository } from "../../infra/repositories/load-leaderboard-by-region-and-act-repository"
 
 export default class LoadLeaderboard implements ILoadLeaderboard{
@@ -13,6 +12,9 @@ export default class LoadLeaderboard implements ILoadLeaderboard{
     }
     const response = await this.loadLeaderboardByRegionAndActRepository.load(region, actId)
     const leaderboard: Leaderboard = response.body
+    if (!leaderboard.actId || !leaderboard.players){
+      throw new Error(`Something went wrong with the response: ${JSON.stringify(response)}`)
+    }
     return leaderboard
   }
 }
