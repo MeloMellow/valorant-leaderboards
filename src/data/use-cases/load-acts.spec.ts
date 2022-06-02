@@ -22,7 +22,7 @@ class LoadActsRepositorySpy implements ILoadActsRepository{
       this.locale = locale
     }
     this.isLoaded = true
-    return {header: {}, status: {}, body: { acts: [{}, {}, {}]}}
+    return {header: {}, status: {}, body: { acts: [{name: 'any-name', type: 'any-type', id: 'any-id'}]}}
   }
 }
 
@@ -77,6 +77,14 @@ describe('LoadActs', () => {
     const sut = new LoadActs(new LoadActsRepositoryWithErrorSpy())
     const response = sut.load()
     await expect(response).rejects.toThrow()
+  })
+
+  it("Should return a valid Act Array on success", async()=>{
+    const { sut } = makeSut()
+    const acts = await sut.load()
+    expect(acts[0]).toHaveProperty('name')
+    expect(acts[0]).toHaveProperty('type')
+    expect(acts[0]).toHaveProperty('id')
   })
 
   it("Should throws if an invalid response is provided on success", async ()=>{
